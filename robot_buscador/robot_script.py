@@ -16,6 +16,14 @@ from pybricks.parameters import Port
 from pybricks.tools import wait
 from pybricks.robotics import DriveBase
 
+mapa[][] = 0202000105030705000200041109060110031000000200080101100110000106010701
+ 
+position = up , right , left , down ;
+
+if cel == 02 and position_start == right
+    if position_end= up
+    if 
+    then_move_motor()
 # Initialize the motors.
 left_motor = Motor(Port.A)
 right_motor = Motor(Port.D)
