@@ -1,29 +1,12 @@
-#!/usr/bin/env pybricks-micropython
-
-"""
-Example LEGO® MINDSTORMS® EV3 Robot Educator Color Sensor Down Program
-----------------------------------------------------------------------
-
-This program requires LEGO® EV3 MicroPython v2.0.
-Download: https://education.lego.com/en-us/support/mindstorms-ev3/python-for-ev3
-
-Building instructions can be found at:
-https://education.lego.com/en-us/support/mindstorms-ev3/building-instructions#robot
-"""
-
+# Import necessary libraries
 from pybricks.ev3devices import Motor, ColorSensor
 from pybricks.parameters import Port
 from pybricks.tools import wait
 from pybricks.robotics import DriveBase
+from pathfinding.core.diagonal_movement import DiagonalMovement
+from pathfinding.core.grid import Grid
+from pathfinding.finder.a_star import AStarFinder
 
-mapa[][] = 0202000105030705000200041109060110031000000200080101100110000106010701
- 
-position = up , right , left , down ;
-
-if cel == 02 and position_start == right
-    if position_end= up
-    if 
-    then_move_motor()
 # Initialize the motors.
 left_motor = Motor(Port.A)
 right_motor = Motor(Port.D)
@@ -34,32 +17,55 @@ line_sensor = ColorSensor(Port.S4)
 # Initialize the drive base.
 robot = DriveBase(left_motor, right_motor, wheel_diameter=55.5, axle_track=104)
 
-# Calculate the light threshold. Choose values based on your measurements.
-BLACK = 19
-WHITE = 85
-threshold = (BLACK + WHITE) / 2
+# Define the map
+map_data = [
+    [0, 0, 0, 1, 0, 0, 0],
+    [0, 0, 1, 1, 1, 0, 0],
+    [0, 1, 1, 1, 1, 1, 0],
+    [1, 1, 1, 1, 1, 1, 1],
+    [0, 1, 1, 1, 1, 1, 0],
+    [0, 0, 1, 1, 1, 0, 0],
+    [0, 0, 0, 1, 0, 0, 0]
+]
 
-# Set the drive speed at 100 millimeters per second.
-DRIVE_SPEED = 30
+# Define function to find path using A* algorithm
+def find_path(start, end, map_data):
+    grid = Grid(matrix=map_data)
+    start_node = grid.node(start[1], start[0])
+    end_node = grid.node(end[1], end[0])
+    finder = AStarFinder(diagonal_movement=DiagonalMovement.always)
+    path, _ = finder.find_path(start_node, end_node, grid)
+    return path
 
-# Set the gain of the proportional line controller. This means that for every
-# percentage point of light deviating from the threshold, we set the turn
-# rate of the drivebase to 1.2 degrees per second.
+# Test run
+start = (6, 0)  # Starting position
+pickup1 = (4, 3)  # First pickup/delivery point
+pickup2 = (2, 5)  # Second pickup/delivery point
 
-# For example, if the light value deviates from the threshold by 10, the robot
-# steers at 10*1.2 = 12 degrees per second.
-PROPORTIONAL_GAIN = 2
+# Find path to first pickup/delivery point
+path_to_pickup1 = find_path(start, pickup1, map_data)
+print("Path to first pickup/delivery point:", path_to_pickup1)
 
-# Start following the line endlessly.
-while True:
-    # Calculate the deviation from the threshold.
-    deviation = line_sensor.reflection() - threshold
+# Find path to second pickup/delivery point
+path_to_pickup2 = find_path(pickup1, pickup2, map_data)
+print("Path to second pickup/delivery point:", path_to_pickup2)
 
-    # Calculate the turn rate.
-    turn_rate = PROPORTIONAL_GAIN * deviation
+# Function to drive along the path
+def drive_along_path(path):
+    for node in path:
+        row, col = node
+        # Convert row and col to x and y coordinates on the map
+        x = (col - 1) * 50 + 25
+        y = (row - 1) * 50 + 25
+        # Drive to the next point on the path
+        # Adjust the robot's position based on x and y coordinates
 
-    # Set the drive base speed and turn rate.
-    robot.drive(DRIVE_SPEED, turn_rate)
+# Drive along the path to the first pickup/delivery point
+drive_along_path(path_to_pickup1)
 
-    # You can wait for a short time or do other things in this loop.
-wait(10)
+# Deliver package at the first pickup/delivery point
+
+# Drive along the path to the second pickup/delivery point
+drive_along_path(path_to_pickup2)
+
+# Deliver package at the second pickup/delivery point
