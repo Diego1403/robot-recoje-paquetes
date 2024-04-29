@@ -1,4 +1,6 @@
-# Import necessary libraries
+#!/usr/bin/env pybricks-micropython
+
+
 from pybricks.ev3devices import Motor, ColorSensor
 from pybricks.parameters import Port
 from pybricks.tools import wait
@@ -18,15 +20,15 @@ line_sensor = ColorSensor(Port.S4)
 robot = DriveBase(left_motor, right_motor, wheel_diameter=55.5, axle_track=104)
 
 # Define the map
-map_data = [
-    [0, 0, 0, 1, 0, 0, 0],
-    [0, 0, 1, 1, 1, 0, 0],
-    [0, 1, 1, 1, 1, 1, 0],
-    [1, 1, 1, 1, 1, 1, 1],
-    [0, 1, 1, 1, 1, 1, 0],
-    [0, 0, 1, 1, 1, 0, 0],
-    [0, 0, 0, 1, 0, 0, 0]
-]
+map_string="0202000105030705000200041109060110031000000200080101100110000106010701"
+map_data = []
+
+
+for i in range(0, len(map_string), 10):  
+    fila = []
+    for j in range(i, i+10, 2): 
+        fila.append(int(map_string[j:j+2]))
+    map_data.append(fila)
 
 # Define function to find path using A* algorithm
 def find_path(start, end, map_data):
@@ -68,4 +70,4 @@ drive_along_path(path_to_pickup1)
 # Drive along the path to the second pickup/delivery point
 drive_along_path(path_to_pickup2)
 
-# Deliver package at the second pickup/delivery point
+# Deliver package at the second pickup/delivery point
