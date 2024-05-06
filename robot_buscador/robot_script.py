@@ -24,6 +24,19 @@ map_string="02020001050307050002000411090601100310000002000801011001100001060107
 map_data = []
 
 
+
+#Valores de prueba
+
+inicialx=6
+inicialy=0
+
+recogidax=3
+recogiday=4
+
+entregax=4
+entregay=5
+
+
 for i in range(0, len(map_string), 10):  
     fila = []
     for j in range(i, i+10, 2): 
@@ -39,6 +52,35 @@ def find_path(start, end, map_data):
     path, _ = finder.find_path(start_node, end_node, grid)
     return path
 
+def movimiento(inix, iniy, objx, objy):
+    if(objx < inix): #Movimiento hacia arriba
+        robot.drive(280,0)
+        robot.brake()
+        inix=inix-1
+        return map_data[inix-1][iniy]
+    
+    if(objy > iniy):
+        robot.turn(90)
+        robot.drive(280,0)
+        robot.brake()
+        iniy=iniy-1
+        return map_data[inix][iniy+1]
+    
+    if(objy < iniy):
+        robot.turn(360)
+        robot.drive(280,0)
+        robot.brake()
+        iniy=iniy-1
+        return map_data[inix][iniy+1]
+        
+    if(objx > inix):
+        robot.turn(270)
+        robot.drive(280,0)
+        robot.brake()
+        inix=inix-1
+        return map_data[inix+1][iniy]
+
+
 # Test run
 start = (6, 0)  # Starting position
 pickup1 = (4, 3)  # First pickup/delivery point
@@ -52,22 +94,9 @@ print("Path to first pickup/delivery point:", path_to_pickup1)
 path_to_pickup2 = find_path(pickup1, pickup2, map_data)
 print("Path to second pickup/delivery point:", path_to_pickup2)
 
-# Function to drive along the path
-def drive_along_path(path):
-    for node in path:
-        row, col = node
-        # Convert row and col to x and y coordinates on the map
-        x = (col - 1) * 50 + 25
-        y = (row - 1) * 50 + 25
-        # Drive to the next point on the path
-        # Adjust the robot's position based on x and y coordinates
 
-# Drive along the path to the first pickup/delivery point
-drive_along_path(path_to_pickup1)
+while(inicialx != recogidax and inicialy != recogiday):
+    movimiento(inicialx,inicialy,recogidax,recogiday)
 
-# Deliver package at the first pickup/delivery point
-
-# Drive along the path to the second pickup/delivery point
-drive_along_path(path_to_pickup2)
-
-# Deliver package at the second pickup/delivery point
+while(inicialx != entregax and inicialy != entregay):
+    movimiento(inicialx,inicialy,entregax,entregay)
