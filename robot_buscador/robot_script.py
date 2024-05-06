@@ -70,7 +70,7 @@ mqtt_client.set_callback(on_message)
 
 #Valores de prueba
 
-pos_robot_x=6
+pos_robot_x=0
 pos_robot_y=0
 
 recogidax=3
@@ -98,14 +98,13 @@ def move_directly(pos_robot_x, pos_robot_y, objx, objy):
     # Calculate the distance using the Pythagorean theorem
     distance = math.sqrt(dx**2 + dy**2)
     
-    # Calculate the angle using arctangent (returns value in radians)
     angle = math.degrees(math.atan2(dy, dx))
     
-    # Turn the robot towards the target
+
     robot.turn(angle)
     
     # Move straight to the target
-    robot.straight(distance * 280)  # Assuming 280 is the scale for each unit in your grid system
+    robot.straight(distance * 280 )  # Assuming 280 is the scale for each unit in your grid system
     
     # Update the current position
     return map_data[objx][objy]
