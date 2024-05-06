@@ -13,8 +13,6 @@ import umqtt.robust as mqtt
 left_motor = Motor(Port.A)
 right_motor = Motor(Port.D)
 
-# Initialize the color sensor.
-line_sensor = ColorSensor(Port.S4)
 
 # Initialize the drive base.
 robot = DriveBase(left_motor, right_motor, wheel_diameter=55.5, axle_track=104)
@@ -72,8 +70,8 @@ mqtt_client.set_callback(on_message)
 
 #Valores de prueba
 
-inicialx=6
-inicialy=0
+pos_robot_x=6
+pos_robot_y=0
 
 recogidax=3
 recogiday=4
@@ -82,17 +80,6 @@ entregax=4
 entregay=5
 
 
-
-#Valores de prueba
-
-inicialx=6
-inicialy=0
-
-recogidax=3
-recogiday=4
-
-entregax=4
-entregay=5
 
 
 for i in range(0, len(map_string), 10):  
@@ -100,45 +87,34 @@ for i in range(0, len(map_string), 10):
     for j in range(i, i+10, 2): 
         fila.append(int(map_string[j:j+2]))
     map_data.append(fila)
+import math
 
-# Define function to find path using A* algorithm
+def move_directly(pos_robot_x, pos_robot_y, objx, objy):
 
-def movimiento(inix, iniy, objx, objy):
-    if(objx < inix): #Movimiento hacia arriba
-        robot.drive(280,0)
-        robot.brake()
-        inix=inix-1
-        return map_data[inix-1][iniy]
+    # Calculate differences in the x and y coordinates
+    dx = objx - pos_robot_x
+    dy = objy - pos_robot_y
     
-    if(objy > iniy):
-        robot.turn(90)
-        robot.drive(280,0)
-        robot.brake()
-        iniy=iniy-1
-        return map_data[inix][iniy+1]
+    # Calculate the distance using the Pythagorean theorem
+    distance = math.sqrt(dx**2 + dy**2)
     
-    if(objy < iniy):
-        robot.turn(360)
-        robot.drive(280,0)
-        robot.brake()
-        iniy=iniy-1
-        return map_data[inix][iniy+1]
-        
-    if(objx > inix):
-        robot.turn(270)
-        robot.drive(280,0)
-        robot.brake()
-        inix=inix-1
-        return map_data[inix+1][iniy]
-
-
-
-
-while True:
-    mqtt_client.wait_msg()
-    while(inicialx != recogidax and inicialy != recogiday):
-        movimiento(inicialx,inicialy,recogidax,recogiday)
-    while(inicialx != entregax and inicialy != entregay):
-        movimiento(inicialx,inicialy,entregax,entregay)
+    # Calculate the angle using arctangent (returns value in radians)
+    angle = math.degrees(math.atan2(dy, dx))
     
+    # Turn the robot towards the target
+    robot.turn(angle)
     
+    # Move straight to the target
+    robot.straight(distance * 280)  # Assuming 280 is the scale for each unit in your grid system
+    
+    # Update the current position
+    return map_data[objx][objy]
+
+# Example of using the function
+while pos_robot_x != recogidax or pos_robot_y != recogiday:
+    next_tile = move_directly(pos_robot_x, pos_robot_y, recogidax, recogiday)
+    pos_robot_x, pos_robot_y = recogidax, recogiday  # Update position
+
+while pos_robot_x != entregax or pos_robot_y != entregay:
+    next_tile = move_directly(pos_robot_x, pos_robot_y, entregax, entregay)
+    pos_robot_x, pos_robot_y = entregax, entregay  # Update position
